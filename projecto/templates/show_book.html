@@ -1,0 +1,50 @@
+{% extends 'basic_layout.html' %}
+
+{% block body %}
+
+<div class="page-header">
+  <h3 class="text-center"><cite>{{book.title}}</cite> dedicated page</h3>
+{% if book.authors %}
+<h4 class="text-center">A book by
+  <span><a href="{{url_for('show_author', author_id=book.authors[0].id)}}">{% if book.authors[0].surname %}{{book.authors[0].surname}}{% endif %} {{book.authors[0].name}}</a></span>
+  {% if book.authors|length > 1 %}
+  {% for author in book.authors[1:] %}
+  <span>, <a href="{{url_for('show_author', author_id=author.id)}}">{% if author.surname %}{{author.surname}} {% endif %} {{author.name}}</a></span>
+  {% endfor %}
+  {% endif %}
+</h4>
+{% endif %}
+</div>
+
+<div id="edit-button">
+  <a href="{{url_for('edit_book', book_id=book.id)}}" class="btn-sm btn-info pull-right" role="button">EDIT</a>
+</div>
+
+<div class="text-center">
+  In case the information provided on this page is incorrect, please be sure to right the wrongs!
+</div>
+
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Book info</strong></div>
+  <div class="panel-body">
+    {% if book.description %}
+    {{book.description}}
+    {% else %}
+    No information.
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Contents</strong></div>
+  <div class="panel-body">
+    {% if book.text %}
+    {{book.text}}
+    {% else %}
+    Sorry!Appears to have been read to non-existence
+    {% endif %}
+  </div>
+</div>
+
+{% endblock body %}

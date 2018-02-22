@@ -1,0 +1,40 @@
+#nav-header { padding-bottom: 30px }
+
+#main-content { background-color: white }
+
+#secondary-heading { margin-bottom: 20px }
+
+#result { margin-top: 20px }
+
+.form-group { padding-right: 5px }
+
+#edit-button { margin-bottom: 30px }
+
+#add-author-button {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+footer {
+    margin-top: 15px;
+}
+
+.ms-helper {
+    color: red;
+    font-weight: bold;
+}
+
+#library {
+    background-color: black;
+    margin-bottom: 5px
+}
+
+
+#author-image {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/e6/Oscar_Wilde_portrait_by_Napoleon_Sarony_-_albumen.jpg');
+    background-size:10%;
+    opacity: .4;
+    height: 150px;
+    background-repeat: repeat-x;
+}
+

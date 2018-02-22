@@ -1,0 +1,79 @@
+{% extends 'basic_layout.html' %}
+
+{% block body %}
+
+<div>
+  Behold the glorious libra magna, now not only not encased within the prison of paper, but, moreover, beautifully rendered e-style!
+</div>
+<div id="book-holder">
+  {% if books %}
+  <div>
+    {% for letter in g.ascii %}
+    <a href="{%if not lettering%}#{{letter}}{%else%}{{url_for('show_all_books', letter=letter)}}{%endif%}">{{letter}}</a>
+    {% endfor %}
+    </div>
+{% for letter in books.iterkeys() %}
+<div class="panel panel-default container">
+  <div class="panel-heading" id="{{letter}}">{{letter}}</div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="col-xs-6">Title</th>
+        <th class="col-xs-6">Author</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for book in books[letter]["items"] %}
+    <tr>
+      <td> <a href="{{url_for('show_book', book_id=book.id)}}">{{book.title}}</a></td>
+      <td>
+        {% for author in book.authors %}
+        <span>
+         {{author}};
+        </span>
+        {% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if lettering and not books[letter]["finished"] %}
+  <button type="button" class="btn btn-default" id="load-more-books">Load more books</button>
+  {% endif %}
+</div>
+{% endfor %}
+{% endif %}
+</div>
+
+{% endblock body %}
+
+
+{% block custom_links_js %}
+<script src="{{ url_for('static', filename='js/myInfiniteLoadHelper.js') }}"></script>
+{% endblock %}
+
+
+{% block custom_js %}
+{% if lettering %}
+<script type="text/javascript">
+  $(document).ready(function() {
+  var booksInfiniteLoadHelper = new InfiniteLoadHelper(
+    2,
+    $('.panel-heading').attr('id'),
+    '{{url_for('show_book', book_id=0)}}'.slice(0, -2),
+    'books');
+
+  $('#load-more-books').click(function() {
+    var button = $(this).clone(withDataAndEvents=true);
+    var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
+    booksInfiniteLoadHelper.commenceLoad(
+      '{{url_for('get_entities')}}',
+      $('#book-holder'),
+      $('tbody'));
+    img.replaceWith(button);
+  });
+
+  });
+</script>
+{% endif %}
+{% endblock custom_js %}

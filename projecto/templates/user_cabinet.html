@@ -1,0 +1,61 @@
+{% extends 'basic_layout.html' %}
+
+{% block body %}
+
+<div class="page-header">
+  <h3 class="text-center">{{current_user.username}}'s personal cabinet</h3>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>User info</strong></div>
+  <div class="panel-body">
+    <div class="list-group">
+
+      <a href="#" class="list-group-item">
+        <h4 class="list-group-item-heading">Username</h4>
+        <p class="list-group-item-text">{{current_user.username}}</p>
+      </a>
+
+      <a href="#" class="list-group-item">
+        <h4 class="list-group-item-heading">Email</h4>
+        <p class="list-group-item-text">{{current_user.email}}</p>
+      </a>
+
+      <a href="#" class="list-group-item">
+        <h4 class="list-group-item-heading">Site role</h4>
+        <p class="list-group-item-text">
+          {% if current_user.roles %}
+          {{' '.join(current_user.roles) | capitalize}}
+          {% else %}
+          User
+          {% endif %}
+        </p>
+      </a>
+
+      <a href="#" class="list-group-item">
+        <h4 class="list-group-item-heading">Registration date</h4>
+        <p class="list-group-item-text">
+          {% if current_user.confirmed_at %}
+          {{current_user.confirmed_at}}
+          {% else %}
+          No information available
+          {% endif %}
+        </p>
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Password managment</strong></div>
+  <div class="panel-body">
+    <div class="list-group">
+      <a href="{{url_for('security.change_password')}}" class="list-group-item">
+        Change your password
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock body %}

@@ -1,0 +1,91 @@
+{% extends 'basic_layout.html' %}
+
+{% block body %}
+
+  <h3 id="secondary-heading">Explore the amazing treasury of knowledge and artistry on our dedicated resourse!</h3>
+
+  <div id="author-image"></div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Menu</strong></div>
+    <div class="panel-body">
+      <div class="list-group">
+        <a href="{{url_for('show_all_authors')}}" class="list-group-item">Browse the corpus</a>
+        <a href="{{url_for('add_authors')}}" class="list-group-item">Make a contribution</a>
+        <a href="{{url_for('random_authors')}}" class="list-group-item">Feeling lucky? Sometimes random is the best adviser!</a>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top : 3em">
+    <h3 class="text-center"><str>Search by author name, surname or book</str><span class="glyphicon glyphicon-search" aria-hidden="true"></span></h3>
+    <form class="form-inline" method="GET" action="{{url_for('authors')}}">
+      <div class="form-group {% if form.name.errors %}has-error{% endif %}">
+        {{form.name.label}}
+        {{form.name(class_="form-control", placeholder="Enter name...")}}
+        {% if form.name.errors %}
+        <span class="help-block">{{ ' '.join(form.name.errors) }}</span>
+        {% endif %}
+      </div>
+      <div class="form-group  {% if form.surname.errors %}has-error{% endif %}">
+        {{form.surname.label}}
+        {{form.surname(class_="form-control", placeholder="Enter surname...")}}
+        {% if form.surname.errors %}
+        <span class="help-block">{{ ' '.join(form.surname.errors) }}</span>
+        {% endif %}
+      </div>
+       <div class="form-group {% if form.book_title.errors %}has-error{% endif %}">
+        {{form.book_title.label}}
+        {{form.book_title(class_="form-control", placeholder="Enter title...")}}
+        {% if form.book_title.errors %}
+        <span class="help-block">{{ ' '.join(form.book_title.errors) }}</span>
+        {% endif %}
+       </div>
+      <input type="Submit" value="Search">
+    </form>
+            {% if form.errors %}
+        <span class="help-block">{{ ' '.join(form.errors) }}</span>
+        {% endif %}
+  </div>
+
+
+  {% if pagination %}
+  <div id="result">
+    {% if pagination.items %}
+    <div>
+      Entries satisfying your search query found: {{pagination.total}}
+    </div>
+
+    <div class="list-group">
+      {% for item in pagination.items %}
+      <a href="{{url_for('show_author', author_id=item.id)}}" class="list-group-item"> {{item.name}} {{item.surname}}</a>
+      {% endfor %}
+    </div>
+    
+    <nav aria-label="Search result pages">
+      <ul class="pagination">
+        <li><a>Pages:</a></li>
+        {% for page in pagination.iter_pages() %}
+        {% if page %}
+        {% if page!= pagination.page %}
+        <li>
+          <a href="{{ url_for('authors', page=page) }}?{{g.query}}">
+             {{ page }}
+           </a>
+        </li>
+        {% else %}
+        <li class="active"><a href="#"><strong> {{ page }} </strong></a></li>
+        {% endif %}
+        {% else %}
+        <li> <span class="ellipsis">…</span> </li>
+        {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+    {% else %}
+    <div>Nothing found</div>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endblock body %}
+

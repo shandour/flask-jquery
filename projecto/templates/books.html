@@ -1,0 +1,27 @@
+{% extends 'basic_layout.html' %}
+
+{% block body %}
+
+<div>
+  <blockquote>
+    <h3 id="secondary-heading">The books that the world calls immoral are books that show the world its own shame.
+    </h3> </blockqoute>
+    Oscar Wilde,<cite> The Pictire of Dorian Gray</cite>
+</div>
+
+<div class="text-center" id="library">
+  <a title="By Emgonzalez (Own work) [Public domain], via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File%3AMelk_-_Abbey_-_Library.jpg"><img width="512" alt="Melk - Abbey - Library" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Melk_-_Abbey_-_Library.jpg/256px-Melk_-_Abbey_-_Library.jpg"/></a>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Menu</strong></div>
+  <div class="panel-body">
+    <div class="list-group">
+      <a href="{{url_for('show_all_books')}}" class="list-group-item">Browse the corpus</a>
+      <a href="{{url_for('add_books')}}" class="list-group-item">Make a contribution</a>
+      <a href="{{url_for('random_books')}}" class="list-group-item">Feeling lucky? Sometimes random is the best adviser!<a/>
+    </div>
+  </div>
+</div>
+
+{% endblock body %}

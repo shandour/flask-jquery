@@ -1,0 +1,135 @@
+{% extends 'basic_layout.html' %}
+
+{% block body %}
+<div>
+  <str>Add a new author, provide details concerning his literary contribution(s) and life, add books if any</str>
+  <form method="POST" action="{{url_for('add_authors')}}">
+    {{form.csrf_token}}
+    <div class="form-group {% if form.first_name.errors %}has-error{% endif %}">
+      {{form.first_name.label(class_="control-label")}}
+      {{form.first_name(class_="form-control", placeholder="Enter author name...")}}
+      {% if form.first_name.errors %}
+      <span class="help-block">{{ ' '.join(form.first_name.errors) }}</span>
+      {% endif %}
+    </div>
+    <div class="form-group {% if form.last_name.errors %}has-error{% endif %}">
+      {{form.last_name.label(class_="control-label")}}
+      {{form.last_name(class_="form-control", placeholder="Enter author surname...")}}
+      {% if form.last_name.errors %}
+      <span class="help-block">{{ ' '.join(form.last_name.errors) }}</span>
+      {% endif %}
+    </div>
+    <div class="form-group {% if form.description.errors %}has-error{% endif %}">
+      {{form.description.label}}
+      {{form.description(class_="form-control", placeholder="Provide a short description...")}}
+      {% if form.description.errors %}
+      <span class="help-block">{{ ' '.join(form.description.errors) }}</span>
+      {% endif %}
+    </div>
+
+        <div class="text-center"><strong>{{form.books.label}}</strong></div>
+        {% for book in form.books %}
+        <div class="books">
+          <hr />
+          <div class="form-group {% if book.title.errors %}has-error{% endif %}">
+            <small>{{ book.title.label(class_="control-label") }}</small>
+            {{ book.title(class_="form-control books-input", placeholder="Enter title") }}
+            {% if book.title.errors %}
+            <span class="help-block">{{ ' '.join(book.title.errors) }}</span>
+            {% endif %}
+          </div>
+          <div class="form-group {% if book.overview.errors %}has-error{% endif %}">
+            <small>{{ book.overview.label(class_="control-label") }}</small>
+            {{ book.overview(class_="form-control books-input", placeholder="Provide a short description") }}
+            {% if book.overview.errors %}
+            <span class="help-block">{{ ' '.join(book.overview.errors) }}</span>
+            {% endif %}
+          </div>
+          <div class="form-group {% if book.content.errors %}has-error{% endif %}">
+            <small>{{ book.content.label(class_="control-label") }}</small>
+            {{ book.content(class_="form-control books-input", placeholder="Past content here") }}
+            {% if book.content.errors %}
+            <span class="help-block">{{ ' '.join(book.content.errors) }}</span>
+            {% endif %}
+          </div>
+          <div>
+            <button type="button" class="btn btn-default delete-book">Delete book</button>
+          </div>
+        </div>
+        {% endfor %}
+        <hr id="books-delimiter" />
+        <button type="button" class="btn btn-default" id="add-books">Add books</button>
+
+    <div>
+      <input type="Submit" class="btn btn-primary pull-right" id="add-author-button" value="Add author"> <span class="glyphicon glyphicon-pencil pull-right" aria-hidden="true"></span>
+    </div>
+  </form>
+</div>
+
+<div style="display:none" id="book-template">
+  <div class="books">
+      <hr />
+    <div class="form-group">
+      <small><label for="books-0-title" class="control-label">Title</label></small>
+      <input class="form-control books-input" id="books-0-title" name="books-0-title" placeholder="Enter title" type="text" value="">
+      <div class="form-group">
+        <small><label for="books-0-overview" class="control-label">Description</label></small>
+        <input class="form-control books-input" id="books-0-overview" name="books-0-overview" placeholder="Provide a short description" type="text" value="">
+      </div>
+      <div class="form-group">
+        <small><label for="books-0-content" class="control-label">Content</label></small>
+        <input class="form-control books-input" id="books-0-content" name="books-0-content" placeholder="Paste content here" type="text" value="">
+      </div>
+      <div>
+        <button type="button" class="btn btn-default delete-book">Delete book</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock body %}
+
+
+{% block custom_js %}
+    <script type="text/javascript">
+    var createCountSetter = function(attrName, num) {
+      return function() {
+        var el = $(this); // get the jQuery obj for current element in the matched collection
+        var name = el.attr(attrName);
+        el.attr(attrName, name.replace(/\d+/, num.toString()));
+      };
+    };
+
+    $(document).ready(function(){
+      $("#add-books").click(function(){
+        var authorBlock = $("#book-template .books").clone();
+
+        if ($("form .books").length > 0) {
+          var last = $("form .books:last .books-input").attr("name");
+          var num = parseInt(last.match(/\d+/)) + 1;
+          authorBlock.find(".books-input").each(createCountSetter("name", num));
+          authorBlock.find(".books-input").each(createCountSetter("id", num));
+          authorBlock.find("label").each(createCountSetter("for", num));
+          $("#books-delimiter").before(authorBlock);
+        } else {
+          authorBlock.find(".books-input").each(createCountSetter("name", 0));
+          authorBlock.find(".books-input").each(createCountSetter("id", 0));
+          authorBlock.find("label").each(createCountSetter("for", 0));
+          $("#books-delimiter").before(authorBlock.html());
+        }
+      });
+
+      $("form").on("click", ".delete-book", function(){
+        $(this).closest(".books").remove();
+        var count = 0;
+        $(".books").each(function() {
+          var el = $(this);
+          el.find(".books-input").each(createCountSetter("name", count));
+          el.find(".books-input").each(createCountSetter("id", count));
+          el.find("label").each(createCountSetter("for", count));
+          count++;
+        });
+      });
+    });
+  </script>
+  {% endblock custom_js %}

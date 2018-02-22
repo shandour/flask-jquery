@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      Library
+    </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    {% block custom_css %} {% endblock custom_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="col-md-offset-3 col-md-6">
+            <div class="navbar-header" id="nav-header">
+              <div class="navbar-brand">
+                <a href="/">
+                  <span class="glyphicon glyphicon-education" aria-hidden="true"></span>
+                  THE INTERNATIONAL LIBRARY PROJECT: <small> your portable e-hoard of knowledge </small>
+                </a>
+
+              </div>
+            </div>
+
+            <div class="btn-group-justified" role="group">
+              <button aria-expanded="false" class="collapsed navbar-toggle" data-target="#collapsable" data-toggle="collapse" type="button">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="collapsable">
+              <ul class="nav nav-pills nav-justified">
+                {% for item in nav.top %}
+                <li role="presentation" class="{{ 'active' if item.is_active or (request.path.startswith(item.url) and item.url != '/') else '' }}">
+                  <a href="{{ item.url }}">{{ item.label }}</a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+          </div>
+                      <div class="col-md-3">
+            {% if not current_user.username %}
+            <a class="btn btn-default navbar-btn" href="{{url_for('security.login')}}">Sign in</a>
+            {% else %}
+            
+              {% if current_user.username %}
+              Current user:<span class="badge"> {{current_user.username}}</span>
+              <div> <a href="{{url_for('user_cabinet')}}"><small>User cabinet</small></a></div>
+              {% endif %}
+            
+            <a class="btn btn-default navbar-btn" href="{{url_for('security.logout')}}">Sign out</a> 
+            {% endif %}
+            </div>
+          </div>
+      </nav>
+    </header>
+
+
+    <div class ="container-fluid" id="main-content">
+      <div class="col-md-offset-3 col-md-6 col-md-offset-3">
+        <div class="container-fluid">
+          {% block body %} {% endblock %}
+        </div>
+      </div>
+    </div>
+
+
+    <footer class="panel-footer container-fluid">
+      <section class="col-md-offset-3 col-md-6 col-md-offset-3">
+        &copy; The Alexander literateur group 2017 - ad infinitum
+      </section>
+    </footer>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    {% block custom_links_js %} {% endblock %}
+    {% block custom_js %} {% endblock %}
+  </body>
+</html>
