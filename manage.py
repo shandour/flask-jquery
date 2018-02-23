@@ -31,20 +31,24 @@ def drop_db():
     db.drop_all()
 
 
-@manager.command
-@manager.option('-i', '--iteration_number', dest='creation_iteration_number')
-@manager.option('-un', '--users_number', dest='users_number')
-def create_db_fixtures(creation_iteration_number=100, users_number=10):
+@manager.option('-i', '--iteration_number',
+                dest='creation_iteration_number',
+                type=int,
+                default=100)
+@manager.option('-un', '--users_number',
+                dest='users_number',
+                type=int,
+                default=10)
+def create_db_fixtures(creation_iteration_number, users_number):
     "Creates fixtures"
-    create_fixtures(int(creation_iteration_number), int(users_number))
+    create_fixtures(creation_iteration_number, users_number)
 
 
-@manager.command
 @manager.option('-u', '--username', dest='username')
 @manager.option('-e', '--email', dest='email')
 @manager.option('-p', '--password', dest='password')
-@manager.option('-r', '--role', dest='role')
-def add_user(username, email, password, role=None):
+@manager.option('-r', '--role', dest='role', default=None)
+def add_user(username, email, password, role):
     "Creates an admin, an editor a basic level (if role is None) user"
     message = ''
 

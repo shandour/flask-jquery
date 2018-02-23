@@ -25,7 +25,9 @@
         <h4 class="list-group-item-heading">Site role</h4>
         <p class="list-group-item-text">
           {% if current_user.roles %}
-          {{' '.join(current_user.roles) | capitalize}}
+          {% for role in current_user.roles %}
+         <span>{{role.name}} </span>
+          {% endfor %}
           {% else %}
           User
           {% endif %}
