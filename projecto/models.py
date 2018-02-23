@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from flask_sqlalchemy import SQLAlchemy
-
-from flask_security import UserMixin, RoleMixin
-
-from sqlalchemy import func
-
 from datetime import datetime
 
+from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin
+from sqlalchemy import func
 from sqlalchemy.orm import column_property
 
 
