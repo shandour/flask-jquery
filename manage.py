@@ -5,7 +5,7 @@ from flask_security.utils import hash_password
 from projecto import create_app
 from projecto.models import db, User, Role
 from projecto.security import ADMIN_ROLE, EDITOR_ROLE
-from create_fixtures import create_fixtures
+from fixtures import create_fixtures
 
 
 manager = Manager(create_app)
@@ -31,11 +31,11 @@ def drop_db():
     db.drop_all()
 
 
-@manager.option('-i', '--iteration_number',
+@manager.option('-i', '--iteration-number',
                 dest='creation_iteration_number',
                 type=int,
                 default=100)
-@manager.option('-un', '--users_number',
+@manager.option('-un', '--users-number',
                 dest='users_number',
                 type=int,
                 default=10)

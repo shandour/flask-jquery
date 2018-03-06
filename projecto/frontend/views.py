@@ -9,7 +9,8 @@ from flask import (
     flash,
     jsonify,
     g,
-    abort
+    abort,
+    Response
 )
 from flask_sqlalchemy import Pagination
 from flask_security import login_required, roles_accepted, current_user
@@ -32,7 +33,8 @@ from projecto.db_operations import (
     add_book,
     add_author,
     update_book,
-    update_author)
+    update_author,
+    delete_entity as delete_db_entity)
 from projecto.security import ADMIN_ROLE, EDITOR_ROLE
 
 @app.route('/')
@@ -68,7 +70,7 @@ def show_all_books(letter=None):
     g.ascii = ascii_uppercase
     if not letter:
         books = get_all_books_with_sections()
-        if books != 'apply lettering':
+        if books:
             return render_template('b_corpus.html', books=books, lettering=False)
         else:
             letter = 'A'
@@ -142,8 +144,8 @@ def edit_book(book_id=None):
 @app.route('/books/random')
 def random_books():
     book_id = get_random_entity("book")
-    if book_id:
-        return redirect(url_for('show_book', book_id=book_id))
+
+    return redirect(url_for('show_book', book_id=book_id))
 
 
 # author views
@@ -177,8 +179,11 @@ def show_all_authors(letter=None):
     g.ascii = ascii_uppercase
     if not letter:
         authors = get_all_authors_with_sections()
-        if authors != 'apply lettering':
-            return render_template('corpus.html', authors=authors, lettering=False)
+        if authors:
+            return render_template(
+                'corpus.html',
+                authors=authors,
+                lettering=False)
         else:
             letter = 'A'
     authors = get_entities_for_letter('authors', letter)
@@ -244,8 +249,8 @@ def edit_author(author_id=None):
 @app.route('/authors/random')
 def random_authors():
     author_id = get_random_entity("author")
-    if author_id:
-        return redirect(url_for('show_author', author_id=author_id))
+
+    return redirect(url_for('show_author', author_id=author_id))
 
 
 # error handler
@@ -292,3 +297,22 @@ def extended_roles_checker(entity):
     ):
         return
     abort(403)
+
+
+# deleting entities
+@app.route('/api/delete-entity', methods=['GET', 'DELETE'])
+def delete_entity():
+    if not current_user.is_authenticated:
+        abort(403)
+
+    entity_type = request.args.get('entityType')
+    entity_id = request.args.get('id')
+    if entity_type == 'author':
+        entity = get_author_by_id(entity_id)
+    elif entity_type == 'book':
+        entity = get_book_by_id(entity_id)
+
+    extended_roles_checker(entity)
+    delete_db_entity(entity)
+
+    return Response(status='200')

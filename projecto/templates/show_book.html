@@ -47,4 +47,27 @@
   </div>
 </div>
 
+<div id="deletion-interface-container"></div>
+
 {% endblock body %}
+
+
+{% block custom_links_js %}
+<script src="{{ url_for('static', filename='js/entityDeletion.js') }}"></script>
+{% endblock %}
+
+
+{% block custom_js %}
+<script type='text/javascript'>
+
+$(document).ready(function() {
+  entityDeletionListener(
+    "{{url_for('delete_entity')}}?entityType=book&id={{book.id}}",
+    $('#deletion-interface-container'),
+    "{{url_for('show_all_books')}}"
+  );
+});
+
+
+</script>
+{% endblock %}
