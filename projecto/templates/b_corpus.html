@@ -9,7 +9,7 @@
   {% if books %}
   <div>
     {% for letter in g.ascii %}
-    <a href="{%if not lettering%}#{{letter}}{%else%}{{url_for('show_all_books', letter=letter)}}{%endif%}">{{letter}}</a>
+    <a href="{%if not lettering%}#{{letter}}{%else%}{{url_for('frontend.show_all_books', letter=letter)}}{%endif%}">{{letter}}</a>
     {% endfor %}
     </div>
 {% for letter in books.iterkeys() %}
@@ -25,7 +25,7 @@
     <tbody>
     {% for book in books[letter]["items"] %}
     <tr>
-      <td> <a href="{{url_for('show_book', book_id=book.id)}}">{{book.title}}</a></td>
+      <td> <a href="{{url_for('frontend.show_book', book_id=book.id)}}">{{book.title}}</a></td>
       <td>
         {% for author in book.authors %}
         <span>
@@ -60,14 +60,14 @@
   var booksInfiniteLoadHelper = new InfiniteLoadHelper(
     2,
     $('.panel-heading').attr('id'),
-    '{{url_for('show_book', book_id=0)}}'.slice(0, -2),
+    '{{url_for('frontend.show_book', book_id=0)}}'.slice(0, -2),
     'books');
 
   $('#load-more-books').click(function() {
     var button = $(this).clone(withDataAndEvents=true);
     var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
     booksInfiniteLoadHelper.commenceLoad(
-      '{{url_for('get_entities')}}',
+      '{{url_for('frontend.get_entities')}}',
       $('#book-holder'),
       $('tbody'));
     img.replaceWith(button);

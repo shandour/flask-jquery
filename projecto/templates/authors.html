@@ -10,16 +10,16 @@
     <div class="panel-heading"><strong>Menu</strong></div>
     <div class="panel-body">
       <div class="list-group">
-        <a href="{{url_for('show_all_authors')}}" class="list-group-item">Browse the corpus</a>
-        <a href="{{url_for('add_authors')}}" class="list-group-item">Make a contribution</a>
-        <a href="{{url_for('random_authors')}}" class="list-group-item">Feeling lucky? Sometimes random is the best adviser!</a>
+        <a href="{{url_for('frontend.show_all_authors')}}" class="list-group-item">Browse the corpus</a>
+        <a href="{{url_for('frontend.add_authors')}}" class="list-group-item">Make a contribution</a>
+        <a href="{{url_for('frontend.random_authors')}}" class="list-group-item">Feeling lucky? Sometimes random is the best adviser!</a>
       </div>
     </div>
   </div>
 
   <div style="margin-top : 3em">
     <h3 class="text-center"><str>Search by author name, surname or book</str><span class="glyphicon glyphicon-search" aria-hidden="true"></span></h3>
-    <form class="form-inline" method="GET" action="{{url_for('authors')}}">
+    <form class="form-inline" method="GET" action="{{url_for('frontend.authors')}}">
       <div class="form-group {% if form.name.errors %}has-error{% endif %}">
         {{form.name.label}}
         {{form.name(class_="form-control", placeholder="Enter name...")}}
@@ -58,7 +58,7 @@
 
     <div class="list-group">
       {% for item in pagination.items %}
-      <a href="{{url_for('show_author', author_id=item.id)}}" class="list-group-item"> {{item.name}} {{item.surname}}</a>
+      <a href="{{url_for('frontend.show_author', author_id=item.id)}}" class="list-group-item"> {{item.name}} {{item.surname}}</a>
       {% endfor %}
     </div>
     
@@ -69,7 +69,7 @@
         {% if page %}
         {% if page!= pagination.page %}
         <li>
-          <a href="{{ url_for('authors', page=page) }}?{{g.query}}">
+          <a href="{{ url_for('frontend.authors', page=page) }}?{{g.query}}">
              {{ page }}
            </a>
         </li>

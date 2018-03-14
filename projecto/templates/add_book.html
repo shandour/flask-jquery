@@ -9,7 +9,7 @@
 
     <div>
       <str>Specify the book title and authors, give a general overview and paste the contents</str>
-      <form method="POST" action="{{url_for('add_books')}}">
+      <form method="POST" action="{{url_for('frontend.add_books')}}">
         {{form.csrf_token}}
         <div class="form-group {% if form.title.errors %}has-error{% endif %}">
           {{form.title.label(class_="control-label")}}
@@ -51,7 +51,8 @@
 {% endblock body %}
 
 {% block custom_links_js %}
-    <script src="{{ url_for('static', filename='js/MagicSuggest/magicsuggest.js') }}" type="text/javascript" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/MagicSuggest/magicsuggest.js') }}" type="text/javascript" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/magicSuggestSnippet.js') }}" type="text/javascript" charset="utf-8"></script>
 {% endblock %}
 
 {% block custom_js %}
@@ -59,88 +60,19 @@
 
   $(document).ready(function() {
 
-//variables for tracking suggestions
-  var chunk = 1;
-  var lastQuery = null;
-  var finished = false;
-  var additionalSuggestions = [];
+  var config = new SuggestionsConfig(
+  "{{url_for('frontend.autocomplete')}}",
+  "#authors-tagsinput",
+  "#current-query",
+  "#load-more-suggestions-button",
+  "#authors",
+  "authors",
+  "name",
+  null);
 
-var suggestionsField = $('#authors-tagsinput').magicSuggest({
-  data: function(q) {
-          if (((q.trim()).length == 0 || q == lastQuery) && additionalSuggestions.length > 0) {
-            return additionalSuggestions;
-          }
-          chunk = 1
-          additionalSuggestions = []
-          return "{{url_for('autocomplete')}}"
-  },
-  method: 'GET',
-  dataUrlParams: {'chunk': 1, 't': 'authors'},
-  allowFreeEntries: false,
-  allowDuplicates: false,
-  ajaxConfig: {
-
-  complete: function(xhr, status) {
-    finished = xhr.responseJSON.finished;
-    additionalSuggestions = xhr.responseJSON.results;
-    $('#current-query').text(lastQuery);
-  },
-
-  beforeSend: function(xhr, options) {
-    var queryValue = options.url.match(/query=(\S*)&chunk/);
-    if (queryValue === null) {
-      xhr.abort();
-      console.log('query empty');
-    }
-    queryValue = queryValue[1].trim();
-    if (!(queryValue.length == 0)) {
-      if (queryValue.startsWith(lastQuery) && finished) {
-        xhr.abort();
-        console.log('no more suggestions to load for this query');
-      }
-      lastQuery = queryValue;
-    } else {
-      xhr.abort();
-      console.log('query empty');
-    }
-  }
-
-  },
-  minChars: 2,
-  hideTrigger: true
-  });
-
-
-  $('#load-more-suggestions-button').click( function(e) {
-    if (finished || lastQuery === null) {
-      $(this).addClass('disabled');
-      return;
-  }
-
-  $(this).removeClass('disabled');
-  chunk++;
-  $.ajax({
-  url: ("{{url_for('autocomplete')}}?t=authors&query=" + lastQuery + "&chunk=" + chunk)
-}).done(function(data, status, xhr) {
-    additionalSuggestions = additionalSuggestions.concat(data.results);
-    finished = data.finished;
-}).fail(function(xhr, status, error) {
-    chunk--;
-    console.log('query loading failed with status' + status);
-});
+  applyMagicSuggest(config);
 
   });
-
-  $('form').submit(function(e) {
-    var valuesString = ''
-    for (var i of suggestionsField.getSelection()) {
-      valuesString += i.id + ',';
-    }
-    valuesString = valuesString.endsWith(',')? valuesString.slice(0, valuesString.lastIndexOf(',')) : valuesString;
-    $('#authors').val(valuesString);
-  });
-
-});
 
 </script>
 {% endblock custom_js %}

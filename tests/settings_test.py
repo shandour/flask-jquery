@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 DEBUG = False
+TESTING = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 SECURITY_REGISTERABLE = True

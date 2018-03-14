@@ -6,10 +6,10 @@
   <h3 class="text-center"><cite>{{book.title}}</cite> dedicated page</h3>
 {% if book.authors %}
 <h4 class="text-center">A book by
-  <span><a href="{{url_for('show_author', author_id=book.authors[0].id)}}">{% if book.authors[0].surname %}{{book.authors[0].surname}}{% endif %} {{book.authors[0].name}}</a></span>
+  <span><a href="{{url_for('frontend.show_author', author_id=book.authors[0].id)}}">{% if book.authors[0].surname %}{{book.authors[0].surname}}{% endif %} {{book.authors[0].name}}</a></span>
   {% if book.authors|length > 1 %}
   {% for author in book.authors[1:] %}
-  <span>, <a href="{{url_for('show_author', author_id=author.id)}}">{% if author.surname %}{{author.surname}} {% endif %} {{author.name}}</a></span>
+  <span>, <a href="{{url_for('frontend.show_author', author_id=author.id)}}">{% if author.surname %}{{author.surname}} {% endif %} {{author.name}}</a></span>
   {% endfor %}
   {% endif %}
 </h4>
@@ -17,7 +17,7 @@
 </div>
 
 <div id="edit-button">
-  <a href="{{url_for('edit_book', book_id=book.id)}}" class="btn-sm btn-info pull-right" role="button">EDIT</a>
+  <a href="{{url_for('frontend.edit_book', book_id=book.id)}}" class="btn-sm btn-info pull-right" role="button">EDIT</a>
 </div>
 
 <div class="text-center">
@@ -53,7 +53,7 @@
 
 
 {% block custom_links_js %}
-<script src="{{ url_for('static', filename='js/entityDeletion.js') }}"></script>
+<script src="{{ url_for('frontend.static', filename='js/entityDeletion.js') }}"></script>
 {% endblock %}
 
 
@@ -62,9 +62,9 @@
 
 $(document).ready(function() {
   entityDeletionListener(
-    "{{url_for('delete_entity')}}?entityType=book&id={{book.id}}",
+    "{{url_for('frontend.delete_entity')}}?entityType=book&id={{book.id}}",
     $('#deletion-interface-container'),
-    "{{url_for('show_all_books')}}"
+    "{{url_for('frontend.show_all_books')}}"
   );
 });
 

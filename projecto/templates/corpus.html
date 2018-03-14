@@ -9,14 +9,14 @@
   {% if authors %}
     <div>
     {% for letter in g.ascii %}
-    <a href="{%if not lettering%}#{{letter}}{%else%}{{url_for('show_all_authors', letter=letter)}}{%endif%}">{{letter}}</a>
+    <a href="{%if not lettering%}#{{letter}}{%else%}{{url_for('frontend.show_all_authors', letter=letter)}}{%endif%}">{{letter}}</a>
     {% endfor %}
     </div>
 {% for letter in authors.iterkeys() %}
 <div><strong>{{letter}}</strong></div>
 <div class="list-group" id="{{letter}}">
   {% for author in authors[letter]["items"] %}
-  <a href="{{url_for('show_author', author_id=author.id)}}" class="list-group-item">
+  <a href="{{url_for('frontend.show_author', author_id=author.id)}}" class="list-group-item">
   {% if author.surname %}
   {{author.surname}}
   {% endif %}
@@ -52,7 +52,7 @@
   var authorsInfiniteLoadHelper = new InfiniteLoadHelper(
     2,
     $('.list-group').attr('id'),
-    '{{url_for('show_author', author_id=0)}}'.slice(0, -2),
+    '{{url_for('frontend.show_author', author_id=0)}}'.slice(0, -2),
     'authors');
 
   $('#load-more-authors').click(function() {
@@ -60,7 +60,7 @@
     var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
     $(this).replaceWith(img);
     authorsInfiniteLoadHelper.commenceLoad(
-       '{{url_for('get_entities')}}',
+       '{{url_for('frontend.get_entities')}}',
        $('#author-holder'),
        $('.list-group'));
      img.replaceWith(button);

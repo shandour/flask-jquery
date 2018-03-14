@@ -9,9 +9,9 @@ from sqlalchemy.orm import joinedload
 from projecto.models import Author, Book, db
 
 
-def get_all_authors_with_sections():
+def get_all_authors_with_sections(max_entities):
     """Returns a SortedDict of last name letters of corresponding authors"""
-    if Author.query.count() > app.config['MAX_ENTITIES_PER_CORPUS_PAGE']:
+    if Author.query.count() > max_entities:
         return None
     authors = Author.query.all()
 
@@ -65,9 +65,9 @@ def get_book_by_id(id=None):
     return book
 
 
-def get_all_books_with_sections():
+def get_all_books_with_sections(max_entities):
     """Returns a SortedDict of first name letters of corresponding books"""
-    if Book.query.count() > app.config['MAX_ENTITIES_PER_CORPUS_PAGE']:
+    if Book.query.count() > max_entities:
         return None
 
     books = Book.query\
@@ -94,12 +94,12 @@ def get_all_books_with_sections():
     return d
 
 
-def get_entities_for_letter(entity_type, letter=None, page=None):
+def get_entities_for_letter(entity_type, max_entities_per_page, letter=None, page=None):
     if entity_type == 'books':
         if not letter:
             return
 
-        app_limit = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
+        app_limit = max_entities_per_page
         if Book.query.count() > app_limit:
             limit = app_limit
         else:
@@ -134,7 +134,7 @@ def get_entities_for_letter(entity_type, letter=None, page=None):
         if not letter:
             return
 
-        app_limit = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
+        app_limit = max_entities_per_page
         if Author.query.count() > app_limit:
             limit = app_limit
         else:
@@ -180,7 +180,8 @@ def add_book(form):
     db.session.commit()
 
 
-def update_book(book, form):
+def update_book(book_id, form):
+    book = Book.query.get_or_404(book_id)
     book.title = form.title.data
     book.authors = Author.query\
         .filter(Author.id.in_(
@@ -214,7 +215,8 @@ def add_author(form):
     db.session.commit()
 
 
-def update_author(author, form):
+def update_author(author_id, form):
+    author = Author.query.get_or_404(author_id)
     author.name = form.name.data
     author.surname = form.surname.data
     author.books = Book.query\
@@ -226,8 +228,8 @@ def update_author(author, form):
     db.session.commit()
 
 
-def get_authors_autocomplete(query, chunk):
-    limit = app.config['SUGGESTIONS_PER_QUERY']
+def get_authors_autocomplete(query, chunk, suggestions_per_query):
+    limit = suggestions_per_query
     offset = limit * (int(chunk) - 1)
 
     entity_list = db.session\
@@ -252,8 +254,8 @@ def get_authors_autocomplete(query, chunk):
     return {'results': authors, 'finished': finished}
 
 
-def get_books_autocomplete(query, chunk):
-    limit = app.config['SUGGESTIONS_PER_QUERY']
+def get_books_autocomplete(query, chunk, suggestions_per_query):
+    limit = suggestions_per_query
     offset = limit * (int(chunk) - 1)
 
     entity_list = db.session\

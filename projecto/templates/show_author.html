@@ -7,7 +7,7 @@
 </div>
 
 <div id="edit-button">
-  <a href="{{url_for('edit_author', author_id=author.id)}}" class="btn-sm btn-info pull-right" role="button">EDIT</a>
+  <a href="{{url_for('frontend.edit_author', author_id=author.id)}}" class="btn-sm btn-info pull-right" role="button">EDIT</a>
 </div>
 
 <div class="text-center">
@@ -32,7 +32,7 @@
          {% if author.books %}
          <div class="list-group">
            {% for book in author.books %}
-           <a href="{{url_for('show_book', book_id=book.id)}}" class="list-group-item">
+           <a href="{{url_for('frontend.show_book', book_id=book.id)}}" class="list-group-item">
              {{book.title}}
            </a>
            {% endfor %}
@@ -60,9 +60,9 @@
 
 $(document).ready(function() {
   entityDeletionListener(
-    "{{url_for('delete_entity')}}?entityType=author&id={{author.id}}",
+    "{{url_for('frontend.delete_entity')}}?entityType=author&id={{author.id}}",
     $('#deletion-interface-container'),
-    "{{url_for('show_all_authors')}}"
+    "{{url_for('frontend.show_all_authors')}}"
   );
 });
 

@@ -36,69 +36,73 @@ from projecto.db_operations import (
     update_author,
     delete_entity as delete_db_entity)
 from projecto.security import ADMIN_ROLE, EDITOR_ROLE
+from projecto.frontend import frontend_bp
 
-@app.route('/')
+
+@frontend_bp.route('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/books')
+@frontend_bp.route('/books')
 def books():
     return render_template('books.html')
 
 
-@app.route('/links')
+@frontend_bp.route('/links')
 def links():
     return render_template('links.html')
 
 
-@app.route('/about')
+@frontend_bp.route('/about')
 def about():
     return render_template('about.html')
 
 
 # books views
-@app.route('/books/show/<int:book_id>')
+@frontend_bp.route('/books/show/<int:book_id>')
 def show_book(book_id=None):
     book = get_book_by_id(book_id)
     return render_template('show_book.html', book_id=book_id, book=book)
 
 
-@app.route('/books/show-all')
-@app.route('/books/show-all/<string:letter>')
+@frontend_bp.route('/books/show-all')
+@frontend_bp.route('/books/show-all/<string:letter>')
 def show_all_books(letter=None):
     g.ascii = ascii_uppercase
+    max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
     if not letter:
-        books = get_all_books_with_sections()
+        books = get_all_books_with_sections(max_entities)
         if books:
             return render_template('b_corpus.html', books=books, lettering=False)
         else:
             letter = 'A'
-    books = get_entities_for_letter('books', letter)
+    books = get_entities_for_letter('books', max_entities, letter)
     return render_template('b_corpus.html', books=books, lettering=True)
 
 
-@app.route('/api/get-entities')
+@frontend_bp.route('/api/get-entities')
 def get_entities():
     letter = request.args.get('letter')
     chunk = request.args.get('chunk')
     entity_type = request.args.get('type')
+    max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
 
-    items = get_entities_for_letter(entity_type, letter, chunk)
+    items = get_entities_for_letter(entity_type, max_entities, letter, chunk)
     return jsonify(items)
 
 
-@app.route('/books/add', methods=['GET', 'POST'])
+@frontend_bp.route('/books/add', methods=['GET', 'POST'])
 @login_required
 def add_books():
     form = AddBookForm(request.form)
     if request.method == "POST" and form.validate_on_submit():
         add_book(form)
-        return redirect(url_for('books'))
+        return redirect(url_for('frontend.books'))
     return render_template('add_book.html', form=form)
 
 
-@app.route('/books/edit/<int:book_id>', methods=['GET', 'POST'])
+@frontend_bp.route('/books/edit/<int:book_id>', methods=['GET', 'POST'])
 @login_required
 def edit_book(book_id=None):
     book = get_book_by_id(book_id)
@@ -119,8 +123,8 @@ def edit_book(book_id=None):
     if request.method == "POST":
         form = AddBookForm(request.form)
         if form.validate_on_submit():
-            update_book(book, form)
-            return redirect(url_for('books'))
+            update_book(book_id, form)
+            return redirect(url_for('frontend.books'))
 
         if len(form.authors.data[0].strip()) > 0:
             authors_array = []
@@ -141,19 +145,18 @@ def edit_book(book_id=None):
         authors_array=authors_array)
 
 
-@app.route('/books/random')
+@frontend_bp.route('/books/random')
 def random_books():
     book_id = get_random_entity("book")
 
-    return redirect(url_for('show_book', book_id=book_id))
+    return redirect(url_for('frontend.show_book', book_id=book_id))
 
 
 # author views
 
-@app.route('/authors', methods=['GET'])
-@app.route('/authors/<int:page>', methods=['GET'])
+@frontend_bp.route('/authors', methods=['GET'])
+@frontend_bp.route('/authors/<int:page>', methods=['GET'])
 def authors(page=None):
-
     form = AuthorsSearchForm()
     pagination = None
     per_page = app.config['SEARCH_PAGINATION_PER_PAGE']
@@ -173,12 +176,13 @@ def authors(page=None):
     return render_template('authors.html', form=form, pagination=pagination)
 
 
-@app.route('/authors/show-all')
-@app.route('/authors/show-all/<string:letter>')
+@frontend_bp.route('/authors/show-all')
+@frontend_bp.route('/authors/show-all/<string:letter>')
 def show_all_authors(letter=None):
     g.ascii = ascii_uppercase
+    max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
     if not letter:
-        authors = get_all_authors_with_sections()
+        authors = get_all_authors_with_sections(max_entities)
         if authors:
             return render_template(
                 'corpus.html',
@@ -186,28 +190,28 @@ def show_all_authors(letter=None):
                 lettering=False)
         else:
             letter = 'A'
-    authors = get_entities_for_letter('authors', letter)
+    authors = get_entities_for_letter('authors', max_entities, letter)
     return render_template('corpus.html', authors=authors, lettering=True)
 
 
-@app.route('/authors/show/<int:author_id>')
+@frontend_bp.route('/authors/show/<int:author_id>')
 def show_author(author_id=None):
     author = get_author_by_id(author_id)
     return render_template('show_author.html', author_id=author_id,
                            author=author)
 
 
-@app.route('/authors/add', methods=['GET', 'POST'])
+@frontend_bp.route('/authors/add', methods=['GET', 'POST'])
 @login_required
 def add_authors():
     form = AddAuthorForm(request.form)
     if request.method == "POST" and form.validate_on_submit():
         add_author(form)
-        return redirect(url_for('authors'))
+        return redirect(url_for('frontend.authors'))
     return render_template('add_author.html', form=form)
 
 
-@app.route('/authors/edit/<int:author_id>', methods=['GET', 'POST'])
+@frontend_bp.route('/authors/edit/<int:author_id>', methods=['GET', 'POST'])
 @login_required
 def edit_author(author_id=None):
     author = get_author_by_id(author_id)
@@ -226,8 +230,8 @@ def edit_author(author_id=None):
     if request.method == "POST":
         form = EditAuthorForm(request.form)
         if form.validate_on_submit():
-            update_author(author, form)
-            return redirect(url_for('authors'))
+            update_author(author_id, form)
+            return redirect(url_for('frontend.authors'))
 
         if len(form.books.data[0].strip()) > 0:
             books_array = []
@@ -246,35 +250,42 @@ def edit_author(author_id=None):
         books_array=books_array)
 
 
-@app.route('/authors/random')
+@frontend_bp.route('/authors/random')
 def random_authors():
     author_id = get_random_entity("author")
 
-    return redirect(url_for('show_author', author_id=author_id))
+    return redirect(url_for('frontend.show_author', author_id=author_id))
 
 
 # error handler
-@app.errorhandler(404)
+@frontend_bp.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
 
 
-@app.errorhandler(403)
+@frontend_bp.errorhandler(403)
 def edit_forbidden(error):
     return render_template('403.html'), 403
 
 
 # autocomplete handler
-@app.route('/api/autocomplete')
+@frontend_bp.route('/api/autocomplete')
 def autocomplete():
     query = request.args.get('query')
     chunk = request.args.get('chunk')
     suggestions_type = request.args.get('t')
+    suggestions_per_query = app.config['SUGGESTIONS_PER_QUERY']
 
     if suggestions_type == 'authors':
-        suggestions = get_authors_autocomplete(query, chunk)
+        suggestions = get_authors_autocomplete(
+            query,
+            chunk,
+            suggestions_per_query)
     elif suggestions_type == 'books':
-        suggestions = get_books_autocomplete(query, chunk)
+        suggestions = get_books_autocomplete(
+            query,
+            chunk,
+            suggestions_per_query)
     else:
         suggestions = None
 
@@ -282,7 +293,7 @@ def autocomplete():
 
 
 # user_cabinet
-@app.route('/user/cabinet')
+@frontend_bp.route('/user/cabinet')
 @login_required
 def user_cabinet():
     return render_template('user_cabinet.html')
@@ -300,7 +311,7 @@ def extended_roles_checker(entity):
 
 
 # deleting entities
-@app.route('/api/delete-entity', methods=['GET', 'DELETE'])
+@frontend_bp.route('/api/delete-entity', methods=['GET', 'DELETE'])
 def delete_entity():
     if not current_user.is_authenticated:
         abort(403)
