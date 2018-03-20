@@ -34,9 +34,11 @@ from projecto.db_operations import (
     add_author,
     update_book,
     update_author,
-    delete_entity as delete_db_entity)
+    delete_entity as delete_db_entity,
+    get_books_count,
+    get_authors_count)
 from projecto.security import ADMIN_ROLE, EDITOR_ROLE
-from projecto.frontend import frontend_bp
+from projecto.frontend import frontend_bp, api_bp
 
 
 @frontend_bp.route('/')
@@ -69,35 +71,34 @@ def show_book(book_id=None):
 @frontend_bp.route('/books/show-all')
 @frontend_bp.route('/books/show-all/<string:letter>')
 def show_all_books(letter=None):
-    g.ascii = ascii_uppercase
     max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
     if not letter:
-        books = get_all_books_with_sections(max_entities)
-        if books:
-            return render_template('b_corpus.html', books=books, lettering=False)
+        if get_books_count() <= max_entities:
+            books = get_all_books_with_sections()
+            return render_template(
+                'b_corpus.html',
+                books=books,
+                lettering=False,
+                ascii_letters=ascii_uppercase)
         else:
             letter = 'A'
     books = get_entities_for_letter('books', max_entities, letter)
-    return render_template('b_corpus.html', books=books, lettering=True)
-
-
-@frontend_bp.route('/api/get-entities')
-def get_entities():
-    letter = request.args.get('letter')
-    chunk = request.args.get('chunk')
-    entity_type = request.args.get('type')
-    max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
-
-    items = get_entities_for_letter(entity_type, max_entities, letter, chunk)
-    return jsonify(items)
+    return render_template(
+        'b_corpus.html',
+        books=books,
+        lettering=True,
+        ascii_letters=ascii_uppercase)
 
 
 @frontend_bp.route('/books/add', methods=['GET', 'POST'])
 @login_required
 def add_books():
     form = AddBookForm(request.form)
-    if request.method == "POST" and form.validate_on_submit():
+    if form.validate_on_submit():
         add_book(form)
+        flash('{} successfully added to the books collection!'
+              .format(form.title.data))
+
         return redirect(url_for('frontend.books'))
     return render_template('add_book.html', form=form)
 
@@ -119,13 +120,23 @@ def edit_book(book_id=None):
             }
             for a in book.authors
         ]
-
-    if request.method == "POST":
+    elif request.method == "POST":
         form = AddBookForm(request.form)
         if form.validate_on_submit():
+            old_title = book.title
             update_book(book_id, form)
+
+            if old_title != book.title:
+                flash('{} (formerly {})\'s info successfully modified'.format(
+                    book.title, old_title))
+            else:
+                flash('{}\'s info successfully modified'.format(
+                    book.title))
+
             return redirect(url_for('frontend.books'))
 
+        # needed to produce an array of authors
+        # to prepopulate the MagicSuggest plugin's tagsinput
         if len(form.authors.data[0].strip()) > 0:
             authors_array = []
             for a in form.authors.data:
@@ -137,6 +148,7 @@ def edit_book(book_id=None):
                 authors_array.append({'id': a_id, 'name': a_name})
         else:
             authors_array = []
+
     return render_template(
         'edit_book.html',
         book_id=book_id,
@@ -162,14 +174,14 @@ def authors(page=None):
     per_page = app.config['SEARCH_PAGINATION_PER_PAGE']
     g.query = None
 
-    if len(request.args.values()):
+    if len(request.args):
         form = AuthorsSearchForm(request.args)
         g.query = ('&'.join('{}={}'.format(k, v)
                             for k, v in request.args.iteritems()))
         if form.validate():
             authors = find_authors(**form.data)
             if not authors:
-                pagination = Pagination(*[None for i in range(5)])
+                pagination = Pagination(None, None, None, None, None)
             else:
                 pagination = authors.paginate(page, per_page)
 
@@ -179,19 +191,23 @@ def authors(page=None):
 @frontend_bp.route('/authors/show-all')
 @frontend_bp.route('/authors/show-all/<string:letter>')
 def show_all_authors(letter=None):
-    g.ascii = ascii_uppercase
     max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
     if not letter:
-        authors = get_all_authors_with_sections(max_entities)
+        authors = get_all_authors_with_sections()
         if authors:
             return render_template(
                 'corpus.html',
                 authors=authors,
-                lettering=False)
+                lettering=False,
+                ascii_letters=ascii_uppercase)
         else:
             letter = 'A'
     authors = get_entities_for_letter('authors', max_entities, letter)
-    return render_template('corpus.html', authors=authors, lettering=True)
+    return render_template(
+        'corpus.html',
+        authors=authors,
+        lettering=True,
+        ascii_letters=ascii_uppercase)
 
 
 @frontend_bp.route('/authors/show/<int:author_id>')
@@ -205,8 +221,10 @@ def show_author(author_id=None):
 @login_required
 def add_authors():
     form = AddAuthorForm(request.form)
-    if request.method == "POST" and form.validate_on_submit():
+    if form.validate_on_submit():
         add_author(form)
+        flash('{} successfully added to the authors collection'.format(
+                form.last_name.data + ' ' +  form.first_name.data))
         return redirect(url_for('frontend.authors'))
     return render_template('add_author.html', form=form)
 
@@ -226,13 +244,24 @@ def edit_author(author_id=None):
             }
             for b in author.books
         ]
-
-    if request.method == "POST":
+    elif request.method == "POST":
         form = EditAuthorForm(request.form)
         if form.validate_on_submit():
+            old_initials = author.surname + ' ' + author.name
             update_author(author_id, form)
+            new_initials = author.surname + ' ' + author.name
+
+            if old_initials != new_initials:
+                flash('{} (previously {})\'s info successfully modified'.format(
+                    new_initials, old_initials))
+            else:
+                flash('{}\'s info successfully modified'.format(
+                    new_initials))
+
             return redirect(url_for('frontend.authors'))
 
+        # needed to produce an array of books
+        # to prepopulate the MagicSuggest plugin's tagsinput
         if len(form.books.data[0].strip()) > 0:
             books_array = []
             for b in form.books.data:
@@ -268,8 +297,69 @@ def edit_forbidden(error):
     return render_template('403.html'), 403
 
 
+# user_cabinet
+@frontend_bp.route('/user/cabinet')
+@login_required
+def user_cabinet():
+    return render_template('user_cabinet.html')
+
+
+#check if user can edit entity
+def extended_roles_checker(entity):
+    user_roles = [r.name.lower() for r in current_user.roles]
+    if (
+            EDITOR_ROLE or ADMIN_ROLE not in user_roles
+            or entity.user_id == current_user.id
+    ):
+        return
+    abort(403)
+
+
+# deleting entities
+@api_bp.route('/<string:entity_type>s/<int:entity_id>', methods=['DELETE'])
+def delete_entity(entity_type, entity_id):
+    if not current_user.is_authenticated:
+        abort(403)
+
+    if entity_type == 'author':
+        entity = get_author_by_id(entity_id)
+        entity_name = entity.surname + ' ' + entity.name
+    elif entity_type == 'book':
+        entity = get_book_by_id(entity_id)
+        entity_name = entity.title
+
+    extended_roles_checker(entity)
+    delete_db_entity(entity)
+
+    flash('{} ({}) successfully deleted.'
+          .format(entity_type.capitalize(), entity_name))
+
+    return Response(status='200')
+
+
+# getting entities for letter
+@api_bp.route('/authors')
+def get_authors():
+    letter = request.args.get('letter')
+    chunk = request.args.get('chunk')
+    max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
+
+    items = get_entities_for_letter('authors', max_entities, letter, chunk)
+    return jsonify(items)
+
+
+@api_bp.route('/books')
+def get_books():
+    letter = request.args.get('letter')
+    chunk = request.args.get('chunk')
+    max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
+
+    items = get_entities_for_letter('books', max_entities, letter, chunk)
+    return jsonify(items)
+
+
 # autocomplete handler
-@frontend_bp.route('/api/autocomplete')
+@api_bp.route('/autocomplete')
 def autocomplete():
     query = request.args.get('query')
     chunk = request.args.get('chunk')
@@ -290,40 +380,3 @@ def autocomplete():
         suggestions = None
 
     return jsonify(suggestions)
-
-
-# user_cabinet
-@frontend_bp.route('/user/cabinet')
-@login_required
-def user_cabinet():
-    return render_template('user_cabinet.html')
-
-
-# check if user can edit entity
-def extended_roles_checker(entity):
-    user_roles = [r.name.lower() for r in current_user.roles]
-    if (
-            EDITOR_ROLE or ADMIN_ROLE not in user_roles
-            or entity.user_id == current_user.id
-    ):
-        return
-    abort(403)
-
-
-# deleting entities
-@frontend_bp.route('/api/delete-entity', methods=['GET', 'DELETE'])
-def delete_entity():
-    if not current_user.is_authenticated:
-        abort(403)
-
-    entity_type = request.args.get('entityType')
-    entity_id = request.args.get('id')
-    if entity_type == 'author':
-        entity = get_author_by_id(entity_id)
-    elif entity_type == 'book':
-        entity = get_book_by_id(entity_id)
-
-    extended_roles_checker(entity)
-    delete_db_entity(entity)
-
-    return Response(status='200')

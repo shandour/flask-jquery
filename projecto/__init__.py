@@ -12,8 +12,9 @@ def create_app(settings_module='projecto.settings'):
     db.init_app(app)
 
     from projecto.frontend import views
-    from projecto.frontend import frontend_bp
+    from projecto.frontend import frontend_bp, api_bp
     app.register_blueprint(frontend_bp)
+    app.register_blueprint(api_bp)
 
     from projecto.navigation import nav
     nav.init_app(app)
@@ -26,8 +27,5 @@ def create_app(settings_module='projecto.settings'):
     @app.context_processor
     def inject_nav():
         return {'nav': nav}
-
-    # with app.app_context():
-    #     import projecto.frontend.views
 
     return app

@@ -22,18 +22,18 @@ class Author(db.Model):
     __tablename__ = 'authors'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), index=True)
-    surname = db.Column(db.String(100), index=True)
+    name = db.Column(db.String(100))
+    surname = db.Column(db.String(100))
     description = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     books = db.relationship('Book', secondary=authors_books,
-                            backref='authors', lazy='joined')
+                            backref='authors')
 
     fullname = column_property(surname + name)
 
     def __repr__(self):
-        return ("<id={id}, name: {name}, surname: {surname}"
+        return ("<Author id={id}, name: {name}, surname: {surname}"
                 ", description: '{description}...'>").format(
                     id=self.id,
                     name=self.name,
@@ -51,7 +51,7 @@ class Book(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
     def __repr__(self):
-        return ("<id={id}, title: {title}, description: '{description}"
+        return ("<Book id={id}, title: {title}, description: '{description}"
                 ", text: '{text}...'>").format(
                     id=self.id, title=self.title,
                     description=self.description[:20],
@@ -83,7 +83,7 @@ class User(db.Model, UserMixin):
     authors = db.relationship('Author', backref='user')
 
     def __repr__(self):
-        return ("<id={id}, username: {username}, email: {email}>").format(
+        return ("<User id={id}, username: {username}, email: {email}>").format(
             id=self.id, username=self.username, email=self.email
         )
 
@@ -96,7 +96,7 @@ class Role(db.Model, RoleMixin):
     description = db.Column(db.String(200))
 
     def __repr__(self):
-        return ("<id={id}, name: {name}>, description: {description}").format(
+        return ("<Role id={id}, name: {name}>, description: {description}").format(
             id=self.id, name=self.name, description=self.description
         )
 

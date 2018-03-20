@@ -9,10 +9,12 @@ from sqlalchemy.orm import joinedload
 from projecto.models import Author, Book, db
 
 
-def get_all_authors_with_sections(max_entities):
+def get_authors_count():
+    return Author.query.count()
+
+
+def get_all_authors_with_sections():
     """Returns a SortedDict of last name letters of corresponding authors"""
-    if Author.query.count() > max_entities:
-        return None
     authors = Author.query.all()
 
     d = SortedDict()
@@ -65,11 +67,12 @@ def get_book_by_id(id=None):
     return book
 
 
-def get_all_books_with_sections(max_entities):
-    """Returns a SortedDict of first name letters of corresponding books"""
-    if Book.query.count() > max_entities:
-        return None
+def get_books_count():
+    return Book.query.count()
 
+
+def get_all_books_with_sections():
+    """Returns a SortedDict of first name letters of corresponding books"""
     books = Book.query\
         .options(joinedload(Book.authors))\
         .order_by(Book.title.asc())\
@@ -122,10 +125,10 @@ def get_entities_for_letter(entity_type, max_entities_per_page, letter=None, pag
                 {
                     'id': book.id,
                     'title': book.title,
-                    'authors': SortedList(
+                    'authors': list(SortedList(
                         [str(a.surname + ' ' + a.name)
                          if a.surname else a.name
-                         for a in book.authors])
+                         for a in book.authors]))
                 } for book in books
             ],
             'finished': finished}
@@ -278,8 +281,7 @@ def get_books_autocomplete(query, chunk, suggestions_per_query):
     return {'results': books, 'finished': finished}
 
 
-def check_if_author_exists(data):
-    author_ids = [int(a_id) for a_id in data]
+def check_if_author_exists(author_ids):
     authors_count = db.session\
         .query(func.count(Author.id))\
         .filter(Author.id.in_(author_ids))\

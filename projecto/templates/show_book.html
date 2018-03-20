@@ -62,9 +62,10 @@
 
 $(document).ready(function() {
   entityDeletionListener(
-    "{{url_for('frontend.delete_entity')}}?entityType=book&id={{book.id}}",
+    "{{url_for('api.delete_entity', entity_type='book', entity_id=book.id)}}",
     $('#deletion-interface-container'),
-    "{{url_for('frontend.show_all_books')}}"
+    "{{url_for('frontend.show_all_books')}}",
+    "book"
   );
 });
 

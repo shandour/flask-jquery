@@ -52,9 +52,9 @@ class SimpleBookForm(Form):
 
 class AddAuthorForm(FlaskForm):
     first_name = CleanStringField('First name', [validators.Length(max=50),
-                                            validators.InputRequired()])
+                                                 validators.InputRequired()])
     last_name = CleanStringField('Last name', [validators.Length(max=50),
-                                          validators.Optional()])
+                                               validators.Optional()])
     description = TextAreaField('Description', [validators.Optional(),
                                                 validators.Length(max=2000)])
     books = FieldList(FormField(SimpleBookForm), min_entries=1)
@@ -62,9 +62,9 @@ class AddAuthorForm(FlaskForm):
 
 class EditAuthorForm(FlaskForm):
     name = CleanStringField('First name', [validators.Length(max=50),
-                                      validators.InputRequired()])
+                                           validators.InputRequired()])
     surname = CleanStringField('Last name', [validators.Length(max=50),
-                                        validators.Optional()])
+                                             validators.Optional()])
     description = TextAreaField('Description', [validators.Optional(),
                                                 validators.Length(max=2000)])
     books = TagField('Books')
@@ -79,7 +79,7 @@ class AddBookForm(FlaskForm):
     authors = TagField('Authors', [validators.InputRequired()])
 
     def validate_authors(form, field):
-        if not check_if_author_exists(field.data):
+        if not check_if_author_exists([int(a_id) for a_id in field.data]):
             raise ValidationError('Incorrect author id')
 
 

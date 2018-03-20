@@ -8,7 +8,7 @@
 <div id="book-holder">
   {% if books %}
   <div>
-    {% for letter in g.ascii %}
+    {% for letter in ascii_letters %}
     <a href="{%if not lettering%}#{{letter}}{%else%}{{url_for('frontend.show_all_books', letter=letter)}}{%endif%}">{{letter}}</a>
     {% endfor %}
     </div>
@@ -67,7 +67,7 @@
     var button = $(this).clone(withDataAndEvents=true);
     var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
     booksInfiniteLoadHelper.commenceLoad(
-      '{{url_for('frontend.get_entities')}}',
+      '{{url_for('api.get_books')}}',
       $('#book-holder'),
       $('tbody'));
     img.replaceWith(button);
