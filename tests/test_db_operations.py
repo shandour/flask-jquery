@@ -48,10 +48,7 @@ class TestDbOperations(TestCase):
 
 
     def test_get_all_authors_with_sections_counts_and_returns_all(self):
-        number = 10000
-        self.mocks['Author'].query.count = Mock(return_value=3)
-        get_all_authors_with_sections(number)
-        self.mocks['Author'].query.count.assert_called_once()
+        get_all_authors_with_sections()
         self.mocks['Author'].query.all.assert_called_once()
 
 
@@ -74,10 +71,7 @@ class TestDbOperations(TestCase):
 
 
     def test_get_all_books_with_sections_counts_and_returns_all(self):
-        number = 10000
-        self.mocks['Book'].query.count = Mock(return_value=3)
-        get_all_books_with_sections(number)
-        self.mocks['Book'].query.count.assert_called_once()
+        get_all_books_with_sections()
         self.mocks['Book'].query.options().order_by().all.assert_called_once()
 
 

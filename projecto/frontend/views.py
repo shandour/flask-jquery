@@ -193,8 +193,8 @@ def authors(page=None):
 def show_all_authors(letter=None):
     max_entities = app.config['MAX_ENTITIES_PER_CORPUS_PAGE']
     if not letter:
-        authors = get_all_authors_with_sections()
-        if authors:
+        if get_authors_count() <= max_entities:
+            authors = get_all_authors_with_sections()
             return render_template(
                 'corpus.html',
                 authors=authors,
