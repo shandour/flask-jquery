@@ -94,13 +94,15 @@ class TestViews(TestCase):
         self.assert_context('lettering', True)
         self.assert_context('ascii_letters', ascii_uppercase)
 
-
-    def tets_add_books_returns_template(self):
+#FAILS
+    def test_add_books_returns_template(self):
         self.mocks['add_book'].return_value = 'added'
         r = self.client.post('/books/add')
         self.mocks['add_book']\
             .assert_called_once()
         self.assert_redirects(r, '/books')
+        form_inst = self.mocks['AddBookForm'].return_value
+        form_inst.validate_on_submit.return_value = False
         self.client.get('/books/add')
         self.assert_template_used('add_book.html')
 
