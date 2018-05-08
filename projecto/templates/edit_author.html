@@ -56,23 +56,18 @@
 
 {% block custom_js %}
 <script type="text/javascript">
-
-  $(document).ready(function() {
-
-var config = new SuggestionsConfig(
-  "{{url_for('api.autocomplete')}}",
-  "#books-tagsinput",
-  "#current-query",
-  "#load-more-suggestions-button",
-  "#books",
-  "books",
-  "title",
-  {{books_array|tojson}});
+$(document).ready(function() {
+  var config = new SuggestionsConfig(
+    "{{url_for('api.autocomplete')}}",
+    "#books-tagsinput",
+    "#current-query",
+    "#load-more-suggestions-button",
+    "#books",
+    "books",
+    "title",
+    {{books_array|tojson}});
 
   applyMagicSuggest(config);
-
-  });
-
-
+});
 </script>
 {% endblock custom_js %}

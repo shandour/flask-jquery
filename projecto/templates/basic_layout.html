@@ -54,7 +54,7 @@
             {% else %}
             
               {% if current_user.username %}
-              Current user:<span class="badge"> {{current_user.username}}</span>
+              Current user: <span class="badge">{{current_user.username}}</span>
               <div> <a href="{{url_for('frontend.user_cabinet')}}"><small>User cabinet</small></a></div>
               {% endif %}
             

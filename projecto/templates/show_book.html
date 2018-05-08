@@ -61,9 +61,8 @@
 <script type='text/javascript'>
 
 $(document).ready(function() {
-  entityDeletionListener(
+   $('#deletion-interface-container').entityDeletionListener(
     "{{url_for('api.delete_entity', entity_type='book', entity_id=book.id)}}",
-    $('#deletion-interface-container'),
     "{{url_for('frontend.show_all_books')}}",
     "book"
   );

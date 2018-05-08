@@ -28,8 +28,9 @@ class TagField(Field):
         else:
             self.data = []
 
- # a tweaked StringField that strips values to exclude
- # incorrect addition, editing and sorting behaviour
+
+# a tweaked StringField that strips values to exclude
+# incorrect addition, editing and sorting behaviour
 class CleanStringField(StringField):
     def process_formdata(self, valuelist):
         super(CleanStringField, self).process_formdata(valuelist)

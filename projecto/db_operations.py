@@ -2,7 +2,7 @@
 from random import randint
 
 from sortedcontainers import SortedDict, SortedListWithKey, SortedList
-from flask import current_app as app, abort
+from flask import abort
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
@@ -97,7 +97,10 @@ def get_all_books_with_sections():
     return d
 
 
-def get_entities_for_letter(entity_type, max_entities_per_page, letter=None, page=None):
+def get_entities_for_letter(entity_type,
+                            max_entities_per_page,
+                            letter=None,
+                            page=None):
     if entity_type == 'books':
         if not letter:
             return
@@ -238,9 +241,9 @@ def get_authors_autocomplete(query, chunk, suggestions_per_query):
     entity_list = db.session\
         .query(Author.id, Author.surname, Author.name)\
         .filter((func.to_tsvector('simple', Author.name))
-                     .match(query + ':*') |
+                .match(query + ':*') |
                 (func.to_tsvector('simple', Author.surname))
-                     .match(query + ':*'))\
+                .match(query + ':*'))\
         .order_by(func.ts_rank(func.to_tsvector('simple', Author.name),
                                (query + ':*')))\
         .offset(offset)\
@@ -251,8 +254,9 @@ def get_authors_autocomplete(query, chunk, suggestions_per_query):
 
     authors = [
         {'id': a.id,
-         'name': (a.surname + ' ' + a.name).strip()
-        }
+         'name': ((a.surname + ' ' + a.name).strip()
+                  if a.surname
+                  else a.name)}
         for a in entity_list]
     return {'results': authors, 'finished': finished}
 
@@ -264,7 +268,7 @@ def get_books_autocomplete(query, chunk, suggestions_per_query):
     entity_list = db.session\
         .query(Book.id, Book.title)\
         .filter((func.to_tsvector('simple', Book.title))
-                     .match(query + ':*'))\
+                .match(query + ':*'))\
         .order_by(func.ts_rank(func.to_tsvector('simple', Book.title),
                                (query + ':*')))\
         .offset(offset)\
@@ -275,8 +279,7 @@ def get_books_autocomplete(query, chunk, suggestions_per_query):
 
     books = [
         {'id': b.id,
-         'title': b.title
-        }
+         'title': b.title}
         for b in entity_list]
     return {'results': books, 'finished': finished}
 
@@ -291,15 +294,27 @@ def check_if_author_exists(author_ids):
 
 def get_random_entity(entity_type):
     if entity_type.lower() == "book":
-        last_id = db.session.query(Book.id).order_by(Book.id.desc()).first_or_404()[0]
+        last_id = db.session\
+                    .query(Book.id)\
+                    .order_by(Book.id.desc())\
+                    .first_or_404()[0]
         while True:
-            book_id = db.session.query(Book.id).filter(Book.id==(randint(1, last_id))).one()[0]
+            book_id = db.session\
+                        .query(Book.id)\
+                        .filter(Book.id == (randint(1, last_id)))\
+                        .one()[0]
             if book_id:
                 return book_id
     elif entity_type.lower() == "author":
-        last_id = db.session.query(Author.id).order_by(Author.id.desc()).first_or_404()[0]
+        last_id = db.session\
+                    .query(Author.id)\
+                    .order_by(Author.id.desc())\
+                    .first_or_404()[0]
         while True:
-            author_id = db.session.query(Author.id).filter(Author.id==(randint(1, last_id))).one()[0]
+            author_id = db.session\
+                          .query(Author.id)\
+                          .filter(Author.id == (randint(1, last_id)))\
+                          .one()[0]
             if author_id:
                 return author_id
     else:

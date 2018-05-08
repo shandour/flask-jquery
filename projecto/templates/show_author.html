@@ -57,11 +57,9 @@
 
 {% block custom_js %}
 <script type='text/javascript'>
-
 $(document).ready(function() {
-  entityDeletionListener(
+  $('#deletion-interface-container').entityDeletionListener(
     "{{url_for('api.delete_entity', entity_type='author', entity_id=author.id)}}",
-    $('#deletion-interface-container'),
     "{{url_for('frontend.show_all_authors')}}",
     "author"
   );

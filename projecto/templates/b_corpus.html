@@ -15,7 +15,7 @@
 {% for letter in books.iterkeys() %}
 <div class="panel panel-default container">
   <div class="panel-heading" id="{{letter}}">{{letter}}</div>
-  <table class="table">
+  <table class="table" id="books-table">
     <thead>
       <tr>
         <th class="col-xs-6">Title</th>
@@ -57,21 +57,20 @@
 {% if lettering %}
 <script type="text/javascript">
   $(document).ready(function() {
-  var booksInfiniteLoadHelper = new InfiniteLoadHelper(
-    2,
-    $('.panel-heading').attr('id'),
-    '{{url_for('frontend.show_book', book_id=0)}}'.slice(0, -2),
-    'books');
+    var booksInfiniteLoadHelper =  $('#book-holder').InfiniteLoadHelper({
+      "letter": $('.panel-heading').attr('id'),
+      "getItemsUrl": '{{url_for('frontend.show_book', book_id=0)}}'.slice(0, -2),
+      "type": 'books',
+      "getEntitiesUrl": '{{url_for('api.get_books')}}',
+      "elementToAppendTo": $('#books-table tbody')
+    });
 
-  $('#load-more-books').click(function() {
-    var button = $(this).clone(withDataAndEvents=true);
-    var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
-    booksInfiniteLoadHelper.commenceLoad(
-      '{{url_for('api.get_books')}}',
-      $('#book-holder'),
-      $('tbody'));
-    img.replaceWith(button);
-  });
+    $('#load-more-books').click(function() {
+      var button = $(this).clone(withDataAndEvents=true);
+      var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
+      booksInfiniteLoadHelper.commenceLoad();
+      img.replaceWith(button);
+    });
 
   });
 </script>

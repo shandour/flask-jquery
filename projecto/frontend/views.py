@@ -13,7 +13,7 @@ from flask import (
     Response
 )
 from flask_sqlalchemy import Pagination
-from flask_security import login_required, roles_accepted, current_user
+from flask_security import login_required, current_user
 
 from projecto.forms import (
     AuthorsSearchForm,
@@ -100,7 +100,22 @@ def add_books():
               .format(form.title.data))
 
         return redirect(url_for('frontend.books'))
-    return render_template('add_book.html', form=form)
+
+    if form.authors.data[0] != '':
+        initial_output = []
+        for author_id in form.authors.data:
+            author = get_author_by_id(int(author_id))
+            initial_output.append({
+                'id': author.id,
+                'name': ((author.surname + ' ' + author.name).strip()
+                         if author.surname
+                         else author.name)
+            })
+    else:
+        initial_output = None
+    return render_template('add_book.html',
+                           form=form,
+                           initial_output=initial_output)
 
 
 @frontend_bp.route('/books/edit/<int:book_id>', methods=['GET', 'POST'])
@@ -224,7 +239,7 @@ def add_authors():
     if form.validate_on_submit():
         add_author(form)
         flash('{} successfully added to the authors collection'.format(
-                form.last_name.data + ' ' +  form.first_name.data))
+                form.last_name.data + ' ' + form.first_name.data))
         return redirect(url_for('frontend.authors'))
     return render_template('add_author.html', form=form)
 
@@ -252,8 +267,8 @@ def edit_author(author_id=None):
             new_initials = author.surname + ' ' + author.name
 
             if old_initials != new_initials:
-                flash('{} (previously {})\'s info successfully modified'.format(
-                    new_initials, old_initials))
+                flash('{} (previously {})\'s info successfully modified'
+                      .format(new_initials, old_initials))
             else:
                 flash('{}\'s info successfully modified'.format(
                     new_initials))
@@ -304,7 +319,7 @@ def user_cabinet():
     return render_template('user_cabinet.html')
 
 
-#check if user can edit entity
+# check if user can edit entity
 def extended_roles_checker(entity):
     user_roles = [r.name.lower() for r in current_user.roles]
     if (

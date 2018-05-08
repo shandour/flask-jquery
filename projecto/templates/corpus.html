@@ -15,6 +15,7 @@
 {% for letter in authors.iterkeys() %}
 <div><strong>{{letter}}</strong></div>
 <div class="list-group" id="{{letter}}">
+  {% if authors[letter]["items"] %}
   {% for author in authors[letter]["items"] %}
   <a href="{{url_for('frontend.show_author', author_id=author.id)}}" class="list-group-item">
   {% if author.surname %}
@@ -24,7 +25,10 @@
   {{author.name}}
   {% endif %}
 </a>
-{% endfor %}
+  {% endfor %}
+  {% else %}
+  <li class="list-group-item">No authors for this letter</li>
+  {% endif %}
 </div>
 {% if lettering and not authors[letter]["finished"] %}
 <button type="button" class="btn btn-default" id="load-more-authors">Load more authors</button>
@@ -49,22 +53,21 @@
 {% if lettering %}
 <script type="text/javascript">
   $(document).ready(function() {
-  var authorsInfiniteLoadHelper = new InfiniteLoadHelper(
-    2,
-    $('.list-group').attr('id'),
-    '{{url_for('frontend.show_author', author_id=0)}}'.slice(0, -2)
-    'authors');
+    var authorsInfiniteLoadHelper = $("#author-holder").InfiniteLoadHelper({
+      "letter": $('.list-group').attr('id'),
+      "getItemsUrl": '{{url_for('frontend.show_author', author_id=0)}}'.slice(0, -2),
+      "type": 'authors',
+      "getEntitiesUrl": '{{url_for('api.get_authors')}}',
+      "elementToAppendTo": $('.list-group')
+    });
 
-  $('#load-more-authors').click(function() {
-    var button = $(this).clone(withDataAndEvents=true);
-    var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
-    $(this).replaceWith(img);
-    authorsInfiniteLoadHelper.commenceLoad(
-       '{{url_for('api.get_authors')}}',
-       $('#author-holder'),
-       $('.list-group'));
-     img.replaceWith(button);
-  });
+    $('#load-more-authors').click(function() {
+      var button = $(this).clone(withDataAndEvents=true);
+      var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
+      $(this).replaceWith(img);
+      authorsInfiniteLoadHelper.commenceLoad();
+      img.replaceWith(button);
+    });
 
   });
 </script>

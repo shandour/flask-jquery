@@ -56,21 +56,18 @@
 
 {% block custom_js %}
 <script type="text/javascript">
-
-  $(document).ready(function() {
-
+$(document).ready(function() {
   var config = new SuggestionsConfig(
-  "{{url_for('api.autocomplete')}}",
-  "#authors-tagsinput",
-  "#current-query",
-  "#load-more-suggestions-button",
-  "#authors",
-  "authors",
-  "name",
-  {{authors_array|tojson}});
+    "{{url_for('api.autocomplete')}}",
+    "#authors-tagsinput",
+    "#current-query",
+    "#load-more-suggestions-button",
+    "#authors",
+    "authors",
+    "name",
+    {{authors_array|tojson}});
 
   applyMagicSuggest(config);
-
 });
 
 

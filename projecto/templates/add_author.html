@@ -3,7 +3,7 @@
 {% block body %}
 <div>
   <str>Add a new author, provide details concerning his literary contribution(s) and life, add books if any</str>
-  <form method="POST" action="{{url_for('frontend.add_authors')}}">
+  <form method="POST" action="{{url_for('frontend.add_authors')}}" id="author-form">
     {{form.csrf_token}}
     <div class="form-group {% if form.first_name.errors %}has-error{% endif %}">
       {{form.first_name.label(class_="control-label")}}
@@ -61,7 +61,7 @@
         <button type="button" class="btn btn-default" id="add-books">Add books</button>
 
     <div>
-      <input type="Submit" class="btn btn-primary pull-right" id="add-author-button" value="Add author"> <span class="glyphicon glyphicon-pencil pull-right" aria-hidden="true"></span>
+      <input type="Submit" class="btn btn-primary pull-right" id="add-author-button" value="Add author">
     </div>
   </form>
 </div>
@@ -101,25 +101,23 @@
     };
 
     $(document).ready(function(){
-      $("#add-books").click(function(){
+      $("#add-books").click(function() {
         var authorBlock = $("#book-template .books").clone();
 
-        if ($("form .books").length > 0) {
-          var last = $("form .books:last .books-input").attr("name");
-          var num = parseInt(last.match(/\d+/)) + 1;
-          authorBlock.find(".books-input").each(createCountSetter("name", num));
-          authorBlock.find(".books-input").each(createCountSetter("id", num));
-          authorBlock.find("label").each(createCountSetter("for", num));
-          $("#books-delimiter").before(authorBlock);
+        if ($("#author-form .books").length > 0) {
+          var lastBookInputName = $("#author-form .books:last .books-input").attr("name");
+          var nextNum = parseInt(lastBookInputName.match(/\d+/)) + 1;
         } else {
-          authorBlock.find(".books-input").each(createCountSetter("name", 0));
-          authorBlock.find(".books-input").each(createCountSetter("id", 0));
-          authorBlock.find("label").each(createCountSetter("for", 0));
-          $("#books-delimiter").before(authorBlock.html());
+          var nextNum = 0;
         }
+
+        authorBlock.find(".books-input").each(createCountSetter("name", nextNum));
+        authorBlock.find(".books-input").each(createCountSetter("id", nextNum));
+        authorBlock.find("label").each(createCountSetter("for", nextNum));
+        $("#books-delimiter").before(authorBlock);
       });
 
-      $("form").on("click", ".delete-book", function(){
+      $("#author-form").on("click", ".delete-book", function() {
         $(this).closest(".books").remove();
         var count = 0;
         $(".books").each(function() {
