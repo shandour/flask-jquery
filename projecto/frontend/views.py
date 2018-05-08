@@ -101,7 +101,7 @@ def add_books():
 
         return redirect(url_for('frontend.books'))
 
-    if form.authors.data[0] != '':
+    if request.method == "POST" and form.authors.data[0] != '':
         initial_output = []
         for author_id in form.authors.data:
             author = get_author_by_id(int(author_id))
