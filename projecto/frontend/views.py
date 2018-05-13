@@ -26,7 +26,6 @@ from projecto.db_operations import (
     get_entities_for_letter,
     get_author_by_id,
     get_book_by_id,
-    get_random_entity,
     get_authors_autocomplete,
     get_books_autocomplete,
     find_authors,
@@ -172,13 +171,6 @@ def edit_book(book_id=None):
         authors_array=authors_array)
 
 
-@frontend_bp.route('/books/random')
-def random_books():
-    book_id = get_random_entity("book")
-
-    return redirect(url_for('frontend.show_book', book_id=book_id))
-
-
 # author views
 
 @frontend_bp.route('/authors', methods=['GET'])
@@ -292,13 +284,6 @@ def edit_author(author_id=None):
         form=form,
         author=author,
         books_array=books_array)
-
-
-@frontend_bp.route('/authors/random')
-def random_authors():
-    author_id = get_random_entity("author")
-
-    return redirect(url_for('frontend.show_author', author_id=author_id))
 
 
 # error handler

@@ -9,12 +9,11 @@ from projecto.models import (
     db,
     Author,
     Book,
-    User,
-    Role
+    User
 )
 
 
-def create_fixtures( creation_iteration_number=100, users_number=10):
+def create_fixtures(creation_iteration_number=100, users_number=10):
     if creation_iteration_number < 1:
         return
 
@@ -65,12 +64,14 @@ def create_fixtures( creation_iteration_number=100, users_number=10):
 def return_random_string(min_letters, max_letters):
     return (
         "".join(choice(ascii_letters)
-                for x in range(randint(min_letters, max_letters))).
-                capitalize()
+                for x in range(randint(min_letters, max_letters)))
+        .capitalize()
     )
+
 
 def return_random_text(min_paragraphs, max_paragraphs):
     return " ".join(get_paragraphs(randint(min_paragraphs, max_paragraphs)))
+
 
 def create_users_list(users_number):
     user_name_set = set()
@@ -102,4 +103,3 @@ def create_users_list(users_number):
     db.session.flush()
 
     return user_list
-

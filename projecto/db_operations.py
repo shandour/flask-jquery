@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-from random import randint
-
 from sortedcontainers import SortedDict, SortedListWithKey, SortedList
-from flask import abort
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
@@ -290,35 +287,6 @@ def check_if_author_exists(author_ids):
         .filter(Author.id.in_(author_ids))\
         .scalar()
     return len(author_ids) == authors_count
-
-
-def get_random_entity(entity_type):
-    if entity_type.lower() == "book":
-        last_id = db.session\
-                    .query(Book.id)\
-                    .order_by(Book.id.desc())\
-                    .first_or_404()[0]
-        while True:
-            book_id = db.session\
-                        .query(Book.id)\
-                        .filter(Book.id == (randint(1, last_id)))\
-                        .one()[0]
-            if book_id:
-                return book_id
-    elif entity_type.lower() == "author":
-        last_id = db.session\
-                    .query(Author.id)\
-                    .order_by(Author.id.desc())\
-                    .first_or_404()[0]
-        while True:
-            author_id = db.session\
-                          .query(Author.id)\
-                          .filter(Author.id == (randint(1, last_id)))\
-                          .one()[0]
-            if author_id:
-                return author_id
-    else:
-        abort(404)
 
 
 def delete_entity(entity):
