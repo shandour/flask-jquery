@@ -62,14 +62,9 @@
       "getItemsUrl": '{{url_for('frontend.show_book', book_id=0)}}'.slice(0, -2),
       "type": 'books',
       "getEntitiesUrl": '{{url_for('api.get_books')}}',
-      "elementToAppendTo": $('#books-table tbody')
-    });
-
-    $('#load-more-books').click(function() {
-      var button = $(this).clone(withDataAndEvents=true);
-      var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
-      booksInfiniteLoadHelper.commenceLoad();
-      img.replaceWith(button);
+      "elementToAppendTo": $('#books-table tbody'),
+      "loadImage": $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>'),
+      "loadButton": "#load-more-books"
     });
 
   });

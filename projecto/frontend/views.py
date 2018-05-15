@@ -35,7 +35,9 @@ from projecto.db_operations import (
     update_author,
     delete_entity as delete_db_entity,
     get_books_count,
-    get_authors_count)
+    get_authors_count,
+    get_multiple_entities_by_ids
+)
 from projecto.security import ADMIN_ROLE, EDITOR_ROLE
 from projecto.frontend import frontend_bp, api_bp
 
@@ -102,8 +104,8 @@ def add_books():
 
     if request.method == "POST" and form.authors.data[0] != '':
         initial_output = []
-        for author_id in form.authors.data:
-            author = get_author_by_id(int(author_id))
+        for author in get_multiple_entities_by_ids('authors',
+                                                   form.authors.data):
             initial_output.append({
                 'id': author.id,
                 'name': ((author.surname + ' ' + author.name).strip()
@@ -153,13 +155,14 @@ def edit_book(book_id=None):
         # to prepopulate the MagicSuggest plugin's tagsinput
         if len(form.authors.data[0].strip()) > 0:
             authors_array = []
-            for a in form.authors.data:
-                a_id = a
-                auth = get_author_by_id(a)
-                a_name = (auth.surname + ' ' + auth.name
-                          if auth.surname
-                          else auth.name)
-                authors_array.append({'id': a_id, 'name': a_name})
+            for author in get_multiple_entities_by_ids('authors',
+                                                       form.authors.data):
+                authors_array.append({
+                    'id': author.id,
+                    'name': ((author.surname + ' ' + author.name).strip()
+                             if author.surname
+                             else author.name)
+                })
         else:
             authors_array = []
 
@@ -317,9 +320,11 @@ def extended_roles_checker(entity):
 
 # deleting entities
 @api_bp.route('/<string:entity_type>s/<int:entity_id>', methods=['DELETE'])
+@login_required
 def delete_entity(entity_type, entity_id):
-    if not current_user.is_authenticated:
-        abort(403)
+    # if not current_user.is_authenticated:
+    #     abort(403)
+    import ipdb; ipdb.set_trace()
 
     if entity_type == 'author':
         entity = get_author_by_id(entity_id)

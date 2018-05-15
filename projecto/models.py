@@ -37,8 +37,11 @@ class Author(db.Model):
                 ", description: '{description}...'>").format(
                     id=self.id,
                     name=self.name,
-                    surname=self.surname,
-                    description=self.description[:20])
+                    surname=self.surname
+                    if self.surname else '',
+                    description=self.description[:20]
+                    if self.description
+                    else '')
 
 
 class Book(db.Model):
@@ -54,7 +57,9 @@ class Book(db.Model):
         return ("<Book id={id}, title: {title}, description: '{description}"
                 ", text: '{text}...'>").format(
                     id=self.id, title=self.title,
-                    description=self.description[:20],
+                    description=self.description[:20]
+                    if self.description
+                    else '',
                     text=self.text[:25])
 
 
@@ -96,9 +101,11 @@ class Role(db.Model, RoleMixin):
     description = db.Column(db.String(200))
 
     def __repr__(self):
-        return ("<Role id={id}, name: {name}>, description: {description}").format(
-            id=self.id, name=self.name, description=self.description
-        )
+        return ("<Role id={id}, name: {name}>, description: {description}>")\
+            .format(id=self.id, name=self.name,
+                    description=self.description
+                    if self.description
+                    else '')
 
 
 # full-text search indices

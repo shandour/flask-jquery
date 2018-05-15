@@ -53,20 +53,14 @@
 {% if lettering %}
 <script type="text/javascript">
   $(document).ready(function() {
-    var authorsInfiniteLoadHelper = $("#author-holder").InfiniteLoadHelper({
+     $("#author-holder").InfiniteLoadHelper({
       "letter": $('.list-group').attr('id'),
       "getItemsUrl": '{{url_for('frontend.show_author', author_id=0)}}'.slice(0, -2),
       "type": 'authors',
       "getEntitiesUrl": '{{url_for('api.get_authors')}}',
-      "elementToAppendTo": $('.list-group')
-    });
-
-    $('#load-more-authors').click(function() {
-      var button = $(this).clone(withDataAndEvents=true);
-      var img = $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
-      $(this).replaceWith(img);
-      authorsInfiniteLoadHelper.commenceLoad();
-      img.replaceWith(button);
+      "elementToAppendTo": $('.list-group'),
+      "loadImage": $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>'),
+      "loadButton": "#load-more-authors"
     });
 
   });

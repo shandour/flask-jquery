@@ -64,7 +64,8 @@ $(document).ready(function() {
    $('#deletion-interface-container').entityDeletionListener(
     "{{url_for('api.delete_entity', entity_type='book', entity_id=book.id)}}",
     "{{url_for('frontend.show_all_books')}}",
-    "book"
+    "book",
+    $('<img src="{{url_for('static', filename='gifs/corpus-loader.gif')}}"/>')
   );
 });
 

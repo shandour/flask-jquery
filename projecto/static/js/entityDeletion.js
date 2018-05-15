@@ -2,20 +2,18 @@
 //should be called on a (liekly) empty container, where the deleteButton is to be appended to
 
 (function ($) {
-    var deleteButtonClicked = false;
-    var deleteButton;
-    var warningText = $('<div class="" role="alert" id="warning-text"></div>');
-
-
-    $.fn.entityDeletionListener = function(url, newLocation, entityType) {
+    $.fn.entityDeletionListener = function(url, newLocation, entityType, loadingImage) {
         if (entityType == 'author') {
-            deleteButton = $('<button id="delete-button" class="btn btn-warning pull-right">Delete author</button>');
+            var deleteButton = $('<button id="delete-button" class="btn btn-warning pull-right">Delete author</button>');
         } else if (entityType == 'book') {
-            deleteButton = $('<button id="delete-button" class="btn btn-warning pull-right">Delete book</button>');
+            var deleteButton = $('<button id="delete-button" class="btn btn-warning pull-right">Delete book</button>');
         } else {
             return;
         }
+        var warningText = $('<div class="" role="alert" id="warning-text"></div>');
         this.append([deleteButton, warningText]);
+
+        var deleteButtonClicked = false;
 
         deleteButton.click(function() {
             if (!deleteButtonClicked) {
@@ -27,6 +25,9 @@
 
                 return;
             }
+
+            warningText.remove();
+            deleteButton.replaceWith(loadingImage);
 
             $.ajax({
                 "credentials": 'same-origin',

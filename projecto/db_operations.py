@@ -174,10 +174,8 @@ def add_book(form):
     if form.description:
         new_book.description = form.description.data
 
-    new_book.authors = Author.query\
-        .filter(Author.id.in_(
-            [int(a) for a in form.authors.data]))\
-        .all()
+    new_book.authors = get_multiple_entities_by_ids('authors',
+                                                    form.authors.data)
 
     db.session.add(new_book)
     db.session.commit()
@@ -186,10 +184,7 @@ def add_book(form):
 def update_book(book_id, form):
     book = Book.query.get_or_404(book_id)
     book.title = form.title.data
-    book.authors = Author.query\
-        .filter(Author.id.in_(
-            [int(a) for a in form.authors.data]))\
-        .all()
+    book.authors = get_multiple_entities_by_ids('authors', form.authors.data)
     book.description = form.description.data
     book.text = form.text.data
 
@@ -222,10 +217,7 @@ def update_author(author_id, form):
     author = Author.query.get_or_404(author_id)
     author.name = form.name.data
     author.surname = form.surname.data
-    author.books = Book.query\
-        .filter(Book.id.in_(
-            [int(b) for b in form.books.data]))\
-        .all()
+    author.books = get_multiple_entities_by_ids('books', form.books.data)
     author.description = form.description.data
 
     db.session.commit()
@@ -292,3 +284,13 @@ def check_if_author_exists(author_ids):
 def delete_entity(entity):
     db.session.delete(entity)
     db.session.commit()
+
+
+def get_multiple_entities_by_ids(entity_type, ids):
+    entity_type = entity_type.lower()
+
+    if entity_type not in ['authors', 'books']:
+        return []
+    entity = Author if entity_type == 'authors' else Book
+
+    return entity.query.filter(entity.id.in_(ids)).all()

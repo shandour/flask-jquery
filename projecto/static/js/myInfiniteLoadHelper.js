@@ -2,10 +2,26 @@
     $.fn.InfiniteLoadHelper = function(options)
     {
         var config = $.extend({}, $.fn.InfiniteLoadHelper.defaults, options);
+        var entityContainer = this;
 
-        this.commenceLoad = function() {
+        $(config.loadButton).click(function() {
+            var button = $(this).clone(withDataAndEvents=true);
+
+            if (config.loadImage) {
+                var img = config.loadImage
+                $(this).replaceWith(img);
+            }
+
+            commenceLoad(config, entityContainer);
+
+            if (config.loadImage) {
+                img.replaceWith(button);
+            }
+        });
+    }
+
+    function commenceLoad(config, entityContainer) {
             if (!config.finished) {
-                var self = this;
                 $.ajax(
                     {"url": (config.getEntitiesUrl + '?chunk=' + config.chunk +
                              '&letter=' + config.letter + '&type=' + config.type)
@@ -30,14 +46,11 @@
                         config.chunk++;
                         config.finished = data[config.letter].finished;
                         if (config.finished) {
-                            self.append(config.warning);
+                            entityContainer.append(config.warning);
                         }
                     });
             }
         }
-        return this;
-    }
-
 
     //basic config;
     $.fn.InfiniteLoadHelper.defaults = {
@@ -45,7 +58,7 @@
         "chunk": 2,
         "letter": 'A',
 
-        //the following four are required
+        //the following five are required
         //should be similar to '/books/show' without a following dash and a number
         "getItemsUrl": null,
         "type": null,
@@ -53,6 +66,10 @@
         "getEntitiesUrl": null,
         //should be the one inside the this element
         "elementToAppendTo": null,
+        'loadButton': null,
+
+        //an image to dispaly while the request is being processed
+        'loadImage': null,
 
         //do not change the finished variable unless you want to disallow loading entities
         "finished": false
