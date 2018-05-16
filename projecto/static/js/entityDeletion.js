@@ -35,7 +35,7 @@
                 "method": 'DELETE',
                 "statusCode": {
                     "403": function() {
-                        warningText.text('You are not permitted to delete this entity.');
+                        loadingImage.replaceWith('<div>You do not have the permissions required to delete this entity</div>');
                     },
                     "200": function() {
                         location.href = newLocation;

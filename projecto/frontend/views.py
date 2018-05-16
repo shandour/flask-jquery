@@ -320,11 +320,9 @@ def extended_roles_checker(entity):
 
 # deleting entities
 @api_bp.route('/<string:entity_type>s/<int:entity_id>', methods=['DELETE'])
-@login_required
 def delete_entity(entity_type, entity_id):
-    # if not current_user.is_authenticated:
-    #     abort(403)
-    import ipdb; ipdb.set_trace()
+    if not current_user.is_authenticated:
+        abort(403)
 
     if entity_type == 'author':
         entity = get_author_by_id(entity_id)
@@ -332,6 +330,8 @@ def delete_entity(entity_type, entity_id):
     elif entity_type == 'book':
         entity = get_book_by_id(entity_id)
         entity_name = entity.title
+    else:
+        abort(400)
 
     extended_roles_checker(entity)
     delete_db_entity(entity)
